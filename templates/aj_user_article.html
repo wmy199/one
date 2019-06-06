@@ -1,0 +1,51 @@
+{% for each in page %}
+<div class="user-item clearfix">
+    <div class="item-img"><img src="/media/{{each.get_face_img}}" alt=""></div>
+    <div class="item-info">
+        <h3><a href="{% url 'blog:blog_detail' each.pk%} ">{{each.title}}</a></h3>
+    <p>{{each.content.content|striptags|slice:'40'|cut:'&nbsp;'|cut:'&nbsp'}}</p>
+    </div>  
+</div>
+{% endfor %}
+<div class="pagination">
+    <ul>
+        {% if page.number == 1 %}
+        {% else %}
+        <li><a class="aj" href="?p=article&page=1">
+                首页
+            </a></li>
+        {% endif  %}
+
+        {% if page.has_previous %}
+        <li><a class="aj" href="?p=article&page={{page.previous_page_number}}">
+                上一页
+            </a></li>
+        {% endif %}
+
+        {% for each in page_range %}
+
+        {% if each == page.number %}
+        <li class="current">{{each}}</li>
+        {% else %}
+        <li><a class="aj" href="?p=article&page={{each}}">
+                {{each}}
+            </a></li>
+        {% endif %}
+        {% endfor %}
+
+
+        {% if page.has_next %}
+        <li><a class="aj" href="?p=article&page={{page.next_page_number}}">
+                下一页
+            </a></li>
+        {% endif %}
+
+
+        {% if page.number == page.paginator.page_range|last %}
+        {% else %}
+        <li><a class="aj" href="?p=article&page={{page.paginator.page_range|last}}">
+                尾页
+            </a></li>
+        {% endif  %}
+    </ul>
+</div>

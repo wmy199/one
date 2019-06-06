@@ -1,0 +1,82 @@
+{% for each in page %}
+        <div class="comment">
+            <div class="main-comment clearfix">
+                <div class="comment-user-info">
+                    <div class="comment-avatar">
+                        <img src="/media/{{each.rid.avatar}}" alt="">
+                    </div>
+                    <p>{{each.rid}}</p>
+                </div>
+                <div class="comment-content clearfix">
+                    <p>{{each.content}}</p>
+                    <div class="comment-info">{{each.created_time}}<span data-par="{{each.pk}}" data-pid="{{each.rid.pk}}" class="rep">回复</span></div>
+                </div>
+            </div>
+            <div class="subcomments">
+
+                {% for e in each.comment_set.all|slice:'3' %}
+                <div class="main-comment clearfix">
+                    <div class="comment-user-info">
+                        <div class="comment-avatar">
+                            <img src="/media/{{e.rid.avatar}}" alt="">
+                        </div>
+                        <p>{{e.rid}}</p>
+                    </div>
+                    <div class="comment-content clearfix">
+                        <p><div class="replyto">@{{e.rid}}</div>{{e.content}}</p>
+                        <div class="comment-info">{{e.created_time}}<span data-par="{{e.parent.pk}}" data-pid="{{e.rid.pk}}" class="rep">回复</span></div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if each.comment_set.all|length > 3 %}
+                <div class="seemore"><a href="{% url 'blog:subcomment' each.pk %}">查看更多</a></div>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+            <div class="pagination">
+                <ul>
+                    {% if page.number == 1 %}
+                    {% else %}
+                    <li><a class="com-page" href="?page=1">
+                            首页
+                        </a></li>
+                    {% endif  %}
+
+                    {% if page.has_previous %}
+                    <li><a class="com-page" href="?page={{page.previous_page_number}}">
+                            上一页
+                        </a></li>
+                    {% endif %}
+
+                    {% for each in page_range %}
+
+                    {% if each == page.number %}
+                    <li class="current">{{each}}</li>
+                    {% else %}
+                    <li><a class="com-page" href="?page={{each}}">
+                            {{each}}
+                        </a></li>
+                    {% endif %}
+                    {% endfor %}
+
+
+                    {% if page.has_next %}
+                    <li><a class="com-page" href="?page={{page.next_page_number}}">
+                            下一页
+                        </a></li>
+                    {% endif %}
+
+
+                    {% if page.number == page.paginator.page_range|last %}
+                    {% else %}
+                    <li><a class="com-page" href="?page={{page.paginator.page_range|last}}">
+                            尾页
+                        </a></li>
+                    {% endif  %}
+
+
+                </ul>
+            </div>
+        </div>

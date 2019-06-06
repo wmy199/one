@@ -1,0 +1,17 @@
+{% for e in page %}
+<div class="main-comment clearfix">
+    <div class="comment-user-info">
+        <div class="comment-avatar">
+            <img src="/media/{{e.rid.avatar}}" alt="">
+        </div>
+        <p>{{e.rid}}</p>
+    </div>
+    <div class="comment-content clearfix">
+        <p>
+            <div class="replyto">@{{e.rid}}</div>{{e.content}}
+        </p>
+        <div class="comment-info">{{e.created_time}}<span data-par="{{e.parent.pk}}" data-pid="{{e.rid.pk}}"
+                class="rep">回复</span></div>
+    </div>
+</div>
+{% endfor %}

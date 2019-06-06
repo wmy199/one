@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div class="container bg-aqua shadow">
+    <form class="write" enctype="multipart/form-data" method="POST" action="{%url 'blog:write'%}">
+        {% csrf_token %}
+        <div class="item">
+            <p>标题</p>
+            <input type="text" name="title" placeholder="title">
+        </div>
+
+        <div class="item">
+            <p>内容</p>
+            <div id="editor"></div>
+            <input type="hidden" name="content" placeholder="content">
+        </div>
+        <div class="items">
+            <p>分类</p>
+            <div class="check">
+                <p>----</p>
+                <input type="hidden" name="type">
+                <div class="choice shadow">
+                    {% for each in types %}
+                    <p>{{each}}</p>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+        <div class="item">
+            <p for="file">封面</p>
+            <input id="file" type="file" name="faceimg">
+        </div>
+        <button type="submit">发布</button>
+    </form>
+</div>
+{% endblock content %}
+
+
+{% block js %}
+<style>
+  
+</style>
+<script>
+    var choices = document.querySelectorAll('.choice p');
+    for (let i = 0; i < choices.length; i++) {
+        choices[i].onclick = function () {
+            document.querySelector('.check>p').innerText = this.innerText;
+            document.querySelector("input[name='type']").value = this.innerText
+        }
+    }
+    var E = window.wangEditor;
+    var editor = new E('#editor');
+    editor.create();
+    document.querySelector('button[type="submit"]').onclick = function(){
+        document.querySelector('input[name="content"]').value = editor.txt.html()
+    }
+</script>
+{% endblock js %}

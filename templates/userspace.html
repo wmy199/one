@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<div class="container bg-aqua shadow">
+    <div class="row">
+        <div class="col eight">
+            <div class="user-items ">
+                <h3>文章<a href="?p=article" class="more">查看更多</a></h3>
+                {% for each in user.article_set.all|slice:'5' %}
+                <div class="user-item clearfix">
+                    <div class="item-img"><img src="/media/{{each.get_face_img}}" alt=""></div>
+                    <div class="item-info">
+                        <h3><a href="{% url 'blog:blog_detail' each.pk%} ">{{each.title}}</a></h3>
+                    <p>{{each.content.content|striptags|slice:'40'|cut:'&nbsp;'|cut:'&nbsp'}}</p>
+                    </div>  
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col four">
+            <div class="user-info">
+            <img src="/media/{{user.avatar}}" alt="" class="avatar">
+            <p>{{user.username}}</p>
+            <p>简介：</p>
+            <p>关注数 </p>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

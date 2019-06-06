@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container bg-aqua shadow">
+
+    {% block header %}
+
+    {% endblock header %}
+
+    {% for each in page %}
+    <div class="arc-li-item">
+        <h3><a href="{% url 'blog:blog_detail' each.pk %}">{{each.title}}</a></h3>
+        <span>分类:<a href="{% url 'blog:blog_type' each.article_type.pk %}">{{each.article_type}}</a></span>
+        <span>作者:<a href="{% url 'blog:userspace' each.author.pk %}">{{each.author}}</a></span>
+        <span>发布时间:{{each.created_date}}</span>
+        <span>更新时间:{{each.last_revise}}</span>
+    </div>
+    {% endfor %}
+    <div class="pagination">
+        <ul>
+            {% if page.number == 1 %}
+            {% else %}
+            <li><a href="?page=1">
+                    首页
+                </a></li>
+            {% endif  %}
+
+            {% if page.has_previous %}
+            <li><a href="?page={{page.previous_page_number}}">
+                    上一页
+                </a></li>
+            {% endif %}
+
+            {% for each in page_range %}
+
+            {% if each == page.number %}
+            <li class="current">{{each}}</li>
+            {% else %}
+            <li><a href="?page={{each}}">
+                    {{each}}
+                </a></li>
+            {% endif %}
+            {% endfor %}
+
+
+            {% if page.has_next %}
+            <li><a href="?page={{page.next_page_number}}">
+                    下一页
+                </a></li>
+            {% endif %}
+
+
+            {% if page.number == page.paginator.page_range|last %}
+            {% else %}
+            <li><a href="?page={{page.paginator.page_range|last}}">
+                    尾页
+                </a></li>
+            {% endif  %}
+
+
+        </ul>
+    </div>
+</div>
+{% endblock content %}

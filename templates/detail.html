@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container bg-aqua shadow">
+    <div class="article">
+        <div class="title">{{article.title}}</div>
+        <span>分类:<a href="{% url 'blog:blog_type' article.article_type.pk %}">{{article.article_type}}</a></span>
+        <span>作者:<a href="{% url 'blog:userspace' article.author.pk %}">{{article.author}}</a></span>
+        <span>发布时间:{{article.created_date}}</span>
+        <span>最后修改时间:{{article.last_revise}}</span>
+        <div class="content">
+            {{article.content|safe}}
+        </div>
+    </div>
+</div>
+<div class="container bg-aqua shadow">
+    <h1>评论</h1>
+    <div class="reply-box">
+        <form action="{% url 'blog:reply' %}" method="POST">
+            {% csrf_token %}
+            <textarea name="content" id="" cols="30" rows="10">
+
+        </textarea>
+            <input type="hidden" name="article" value="{{article.pk}}">
+            <input type="submit" value="提交">
+        </form>
+    </div>
+    <div class="reply-box-hid">
+        <form action="{% url 'blog:reply' %}" method="POST">
+            {% csrf_token %}
+            <textarea name="content" id="" cols="30" rows="10">
+
+            </textarea>
+            <input type="hidden" name="parent">
+            <input type="hidden" name="pid">
+            <input type="submit" value="提交">
+        </form>
+    </div>
+
+    <div class="comments">
+        {% for each in page %}
+        <div class="comment">
+            <div class="main-comment clearfix">
+                <div class="comment-user-info">
+                    <div class="comment-avatar">
+                        <img src="/media/{{each.rid.avatar}}" alt="">
+                    </div>
+                    <p>{{each.rid}}</p>
+                </div>
+                <div class="comment-content clearfix">
+                    <p>{{each.content}}</p>
+                    <div class="comment-info">{{each.created_time}}<span data-par="{{each.pk}}" data-pid="{{each.rid.pk}}" class="rep">回复</span></div>
+                </div>
+            </div>
+            <div class="subcomments">
+
+                {% for e in each.comment_set.all|slice:'3' %}
+                <div class="main-comment clearfix">
+                    <div class="comment-user-info">
+                        <div class="comment-avatar">
+                            <img src="/media/{{e.rid.avatar}}" alt="">
+                        </div>
+                        <p>{{e.rid}}</p>
+                    </div>
+                    <div class="comment-content clearfix">
+                        <p><div class="replyto">@{{e.rid}}</div>{{e.content}}</p>
+                        <div class="comment-info">{{e.created_time}}<span data-par="{{e.parent.pk}}" data-pid="{{e.rid.pk}}" class="rep">回复</span></div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if each.comment_set.all|length > 3 %}
+                <div class="seemore"><a href="{% url 'blog:subcomment' each.pk %}">查看更多</a></div>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+            <div class="pagination">
+                <ul>
+                    {% if page.number == 1 %}
+                    {% else %}
+                    <li><a class="com-page" href="?page=1">
+                            首页
+                        </a></li>
+                    {% endif  %}
+
+                    {% if page.has_previous %}
+                    <li><a class="com-page" href="?page={{page.previous_page_number}}">
+                            上一页
+                        </a></li>
+                    {% endif %}
+
+                    {% for each in page_range %}
+
+                    {% if each == page.number %}
+                    <li class="current">{{each}}</li>
+                    {% else %}
+                    <li><a class="com-page" href="?page={{each}}">
+                            {{each}}
+                        </a></li>
+                    {% endif %}
+                    {% endfor %}
+
+
+                    {% if page.has_next %}
+                    <li><a class="com-page" href="?page={{page.next_page_number}}">
+                            下一页
+                        </a></li>
+                    {% endif %}
+
+
+                    {% if page.number == page.paginator.page_range|last %}
+                    {% else %}
+                    <li><a class="com-page" href="?page={{page.paginator.page_range|last}}">
+                            尾页
+                        </a></li>
+                    {% endif  %}
+
+
+                </ul>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+{% endblock content %}
+
+
+{% block js %}
+<script>
+    if (window.XMLHttpRequest) {
+        com_xmlhttp = new XMLHttpRequest();
+        scom_xmlhttp = new XMLHttpRequest();
+    }
+    else {
+        com_xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
+        scom_xmlhttp = new ActiveXObject('Microsoft.XMLHTTP')
+    }
+    var subcomment_container;
+    scom_xmlhttp.onreadystatechange = function () {
+        if (scom_xmlhttp.readyState == 4 && scom_xmlhttp.status == 200) {
+            subcomment_container.innerHTML = scom_xmlhttp.responseText;
+        }
+    }
+    com_xmlhttp.onreadystatechange = function () {
+        if (com_xmlhttp.readyState == 4 && com_xmlhttp.status == 200) {
+            comments.innerHTML = com_xmlhttp.responseText;
+        }
+    }
+    var reply_hid = document.querySelector('.reply-box-hid');
+    var comments = document.querySelector('.comments');
+    if (comments) {
+        comments.onclick = function (e) {
+
+            if (e.target.getAttribute('class') === 'com-page') {
+                e.preventDefault();//阻止跳转
+                com_xmlhttp.open('GET', e.target.href, true);//true为异步请求
+                com_xmlhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");//django通过Header的X-Requested-With判断是否是ajax请求
+                com_xmlhttp.send();
+            }
+            if (e.target.parentElement.getAttribute('class') === 'seemore') {
+                e.preventDefault();
+                subcomment_container = e.target.parentElement.parentElement;
+                scom_xmlhttp.open('GET', e.target.href, true);//true为异步请求
+                scom_xmlhttp.setRequestHeader("X-Requested-With", "XMLHttpRequest");//django通过Header的X-Requested-With判断是否是ajax请求
+                scom_xmlhttp.send();
+            }
+            if(e.target.getAttribute('class') === 'rep'){
+                let pnode = e.target.parentElement.parentElement.parentElement
+                pnode.appendChild(reply_hid);
+                reply_hid.querySelector('input[name="parent"]').value = e.target.getAttribute('data-par');
+                reply_hid.querySelector('input[name="pid"]').value =e.target.getAttribute('data-pid');
+                reply_hid.style.display = 'block';
+            }
+        }
+    }
+
+
+</script>
+{% endblock js %}
